@@ -41,17 +41,17 @@ jobs:
       - name: Package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: npx electron-builder --win --x64
+        run: npx electron-builder --win --x64 --publish never
 
       - name: Package (macOS arm64)
         if: runner.os == 'macOS' && matrix.arch == 'arm64'
         shell: pwsh
-        run: npx electron-builder --mac dmg zip --arm64
+        run: npx electron-builder --mac dmg zip --arm64 --publish never
 
       - name: Package (macOS x64)
         if: runner.os == 'macOS' && matrix.arch == 'x64'
         shell: pwsh
-        run: npx electron-builder --mac dmg zip --x64
+        run: npx electron-builder --mac dmg zip --x64 --publish never
 
       - name: List artifacts
         shell: pwsh
