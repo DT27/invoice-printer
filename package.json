@@ -37,14 +37,27 @@
     ],
     "win": {
       "target": [
-        {
-          "target": "portable",
-          "arch": ["x64"]
-        }
+        { "target": "portable", "arch": ["x64"] },
+        { "target": "nsis", "arch": ["x64"] }
       ]
     },
     "portable": {
-      "artifactName": "发票打印助手-${version}-portable.exe"
+      "artifactName": "发票打印助手-${version}-Windows-portable.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "发票打印助手-${version}-Windows-setup.exe"
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.business"
+    },
+    "dmg": {
+      "artifactName": "发票打印助手-${version}-macOS-${arch}.dmg"
     },
     "directories": {
       "output": "dist",

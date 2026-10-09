@@ -12,8 +12,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
-    timeout-minutes: 15
+    name: ${{ matrix.os }} · ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest   arch: x64
+          - os: macos-13          arch: x64
+          - os: macos-14          arch: arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -27,17 +35,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Package portable exe
-        run: npm run dist:portable
+      - name: Package
+        id: package
+        run: |
+          $env:ELECTRON_CACHE = "$env:GITHUB_WORKSPACE\.electron-cache"
+          New-Item -ItemType Directory -Force $env:ELECTRON_CACHE | Out-Null
+          if ("${{ matrix.os }}" -like "windows*") {
+            npx electron-builder --win --x64
+          } elseif ("${{ matrix.os }}" -like "macos*") {
+            $arch = "${{ matrix.arch }}"
+            if ($arch -eq "arm64") {
+              npx electron-builder --mac dmg zip --arm64
+            } else {
+              npx electron-builder --mac dmg zip --x64
+            }
+          }
 
-      - name: Upload artifact
+      - name: List artifacts
+        run: Get-ChildItem -Recurse dist | Select-Object FullName, Length
+
+      - name: Upload to Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: invoice-printer-portable
-          path: dist/*.exe
+          name: invoice-printer-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/*.{exe,dmg,zip}
+          if-no-files-found: error
 
       - name: Upload to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.exe
+          files: dist/*.{exe,dmg,zip}
