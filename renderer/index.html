@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:;">
+  <title>发票打印助手</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="titlebar" class="titlebar">
+    <div class="titlebar-left">
+      <span class="logo">📄</span>
+      <span class="app-title">发票打印助手</span>
+    </div>
+    <div class="titlebar-right">
+      <button id="btn-min" class="tb-btn" title="最小化">—</button>
+      <button id="btn-max" class="tb-btn" title="最大化">▢</button>
+      <button id="btn-close" class="tb-btn close" title="关闭">✕</button>
+    </div>
+  </div>
+
+  <div id="main" class="main">
+
+    <aside id="panel-left" class="panel panel-left">
+      <div class="panel-header">
+        <span class="panel-title">📂 发票文件</span>
+        <span id="file-count" class="badge">0</span>
+      </div>
+
+      <div id="drop-zone" class="drop-zone">
+        <div class="drop-icon">⬆</div>
+        <div class="drop-text">拖拽 PDF / PNG 到此处</div>
+        <div class="drop-sub">或点击下方按钮选择文件</div>
+        <input type="file" id="file-input" multiple accept=".pdf,.png" hidden>
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-add" class="btn btn-primary">＋ 添加文件</button>
+        <button id="btn-sort-date" class="btn btn-ghost" title="按开票日期升序排列">📅 排序</button>
+        <button id="btn-clear" class="btn btn-ghost">清空</button>
+      </div>
+
+      <div id="file-list" class="file-list"></div>
+
+      <div class="panel-footer">
+        <span>📑 待打印：<b id="total-pages">0</b> 页</span>
+      </div>
+    </aside>
+
+    <section id="panel-center" class="panel panel-center">
+      <div class="panel-header">
+        <span class="panel-title">👁 排版预览</span>
+        <span id="preview-page-info" class="muted">—</span>
+      </div>
+
+      <div id="preview-wrapper" class="preview-wrapper">
+        <canvas id="preview-canvas" class="preview-canvas"></canvas>
+        <div id="preview-empty" class="preview-empty">
+          <div class="empty-icon">📄</div>
+          <div class="empty-text">添加文件后在这里预览排版效果</div>
+        </div>
+      </div>
+
+      <div class="preview-toolbar">
+        <button id="btn-fit" class="tb-btn2" title="适应窗口">⤢</button>
+        <button id="btn-zoom-out" class="tb-btn2" title="缩小">－</button>
+        <span id="zoom-level" class="zoom-label">100%</span>
+        <button id="btn-zoom-in" class="tb-btn2" title="放大">＋</button>
+        <span class="sep"></span>
+        <button id="btn-prev" class="tb-btn2" title="上一页">◀</button>
+        <span id="page-nav" class="page-nav">1 / 1</span>
+        <button id="btn-next" class="tb-btn2" title="下一页">▶</button>
+      </div>
+    </section>
+
+    <aside id="panel-right" class="panel panel-right">
+      <div class="panel-header">
+        <span class="panel-title">⚙ 打印设置</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">排版模板</label>
+        <select id="template" class="form-select">
+          <option value="A4_1">A4 · 单联（全页）</option>
+          <option value="A4_2H">A4 · 二等分（上下）</option>
+          <option value="A4_2V">A4 · 二等分（左右）</option>
+          <option value="A4_3H">A4 · 三等分（上中下）</option>
+          <option value="A4_4">A4 · 四等分（2×2）</option>
+          <option value="A5_1">A5 · 单联（全页）</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">纸张尺寸</label>
+        <select id="paper" class="form-select">
+          <option value="A4">A4 (210×297mm)</option>
+          <option value="A5">A5 (148×210mm)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">边距（mm）</label>
+        <div class="margin-grid">
+          <div class="margin-item">
+            <span class="muted top">上</span>
+            <input type="number" id="margin-top" min="0" max="50" value="10" class="form-input small">
+          </div>
+          <div class="margin-item">
+            <span class="muted right">右</span>
+            <input type="number" id="margin-right" min="0" max="50" value="20" class="form-input small">
+          </div>
+          <div class="margin-item">
+            <span class="muted bottom">下</span>
+            <input type="number" id="margin-bottom" min="0" max="50" value="10" class="form-input small">
+          </div>
+          <div class="margin-item">
+            <span class="muted left">左</span>
+            <input type="number" id="margin-left" min="0" max="50" value="25" class="form-input small">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">缩放比例</label>
+        <div class="scale-row">
+          <input type="range" id="scale" min="50" max="200" value="100" step="5" class="form-range">
+          <span id="scale-value" class="scale-value">100%</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label class="form-label">打印机</label>
+        <select id="printer" class="form-select">
+          <option value="">自动选择</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">打印份数</label>
+        <input type="number" id="copies" min="1" max="100" value="1" class="form-input">
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="action-row">
+        <button id="btn-preview-layout" class="btn btn-ghost full">🔄 刷新排版预览</button>
+        <button id="btn-print" class="btn btn-success full">🖨 开始打印</button>
+        <button id="btn-cancel" class="btn btn-danger full" disabled>⏹ 取消</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">状态</label>
+        <div id="status-log" class="status-log">就绪</div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

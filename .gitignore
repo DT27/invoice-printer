@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+*.log
+.trae/
+electron-cache/
+.electron-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.local
+
+# 测试残留
+test-*.mjs
+test-*.cjs
+*.verify.pdf
+layout-verify.pdf
+diag.pdf
+
+# 本地示例素材
+模板/
+*.png
+*.jpg
+*.jpeg

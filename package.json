@@ -1,0 +1,54 @@
+{
+  "name": "invoice-printer",
+  "version": "1.0.0",
+  "description": "发票合并打印助手 - 支持 PDF/PNG 批量导入、A4/A5 多联排版、绿色免安装",
+  "main": "main.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:portable": "electron-builder --win portable",
+    "dist:all": "electron-builder --win portable --linux AppImage --mac dmg"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "electron-store": "^11.0.2",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "productName": "发票打印助手",
+    "appId": "com.invoice.printer",
+    "files": [
+      "main.js",
+      "preload.js",
+      "layout-engine.cjs",
+      "renderer/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/electron-store/**",
+      "node_modules/conf/**",
+      "node_modules/type-fest/**",
+      "node_modules/pdfjs-dist/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "发票打印助手-${version}-portable.exe"
+    },
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    }
+  }
+}
