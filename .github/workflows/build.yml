@@ -61,11 +61,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: invoice-printer-${{ matrix.os }}-${{ matrix.arch }}
-          path: dist/*.{exe,dmg,zip}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
           if-no-files-found: error
 
       - name: Upload to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.{exe,dmg,zip}
+          files: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
